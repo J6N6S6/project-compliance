@@ -7,6 +7,7 @@ import com.jonas.project_compliance.repository.EmployeeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -20,7 +21,30 @@ public class EmployeeService {
     private EmployeeMapper employeeMapper;
 
     public EmployeeDTO createEmployee(EmployeeDTO employeeDTO){
-        return null;
+
+        if(employeeDTO.name() == null || employeeDTO.name().isBlank()){
+            throw new RuntimeException("Employee name cannot be null or empty");
+        }
+
+        if(employeeDTO.address() == null || employeeDTO.address().isBlank()){
+            throw new RuntimeException("Employee address cannot be null or empty");
+        }
+
+        if(employeeDTO.salary() == null || employeeDTO.salary().compareTo(BigDecimal.ZERO) <= 0){
+            throw new RuntimeException("Employee salary cannot be zero or minor then 0");
+        }
+
+        if(employeeDTO.contractDate() == null){
+            throw new RuntimeException("Employee contract date must have a value");
+        }
+
+        if(employeeDTO.function() == null || employeeDTO.function().isBlank()){
+            throw new RuntimeException("Employee function cannot be null or empty");
+        }
+
+        Employee employee = employeeMapper.toEntity(employeeDTO);
+        Employee savedEmployee = employeeRepository.save(employee);
+        return employeeMapper.toDTO(savedEmployee);
     }
 
     public EmployeeDTO getEmployee(Long id){
