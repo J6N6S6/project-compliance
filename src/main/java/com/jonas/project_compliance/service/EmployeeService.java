@@ -1,6 +1,8 @@
 package com.jonas.project_compliance.service;
 
 import com.jonas.project_compliance.DTO.EmployeeDTO;
+import com.jonas.project_compliance.mapper.EmployeeMapper;
+import com.jonas.project_compliance.model.Employee;
 import com.jonas.project_compliance.repository.EmployeeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,12 +16,16 @@ public class EmployeeService {
     @Autowired
     private EmployeeRepository employeeRepository;
 
+    @Autowired
+    private EmployeeMapper employeeMapper;
+
     public EmployeeDTO createEmployee(EmployeeDTO employeeDTO){
         return null;
     }
 
     public EmployeeDTO getEmployee(Long id){
-        return null;
+        Employee employee = employeeRepository.findById(id).orElseThrow(() -> new RuntimeException("Id field is required"));
+        return employeeMapper.toDTO(employee);
     }
 
     public List<EmployeeDTO> getEmployeeByName(String name){
@@ -57,7 +63,7 @@ public class EmployeeService {
         return null;
     }
 
-    public EmployeeDTO deleteEmployee(Long id){
+    public Void deleteEmployee(Long id){
         return null;
     }
 
