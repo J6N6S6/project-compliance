@@ -33,6 +33,9 @@ public class Employee {
     @Column(name = "contract_date")
     private LocalDateTime contractDate;
 
+    @Column(name = "function")
+    private String function;
+
     public Employee() {
     }
 
@@ -44,7 +47,8 @@ public class Employee {
             String zipCode,
             String phoneNumber,
             BigDecimal salary,
-            LocalDateTime contractDate
+            LocalDateTime contractDate,
+            String function
     ) {
         this.UUID = UUID;
         this.name = name;
@@ -54,6 +58,7 @@ public class Employee {
         this.phoneNumber = phoneNumber;
         this.salary = salary;
         this.contractDate = contractDate;
+        this.function = function;
     }
 
     public Long getUUID() {
@@ -118,5 +123,13 @@ public class Employee {
 
     public void setContractDate(LocalDateTime contractDate) {
         this.contractDate = contractDate;
+    }
+
+    public String getFunction() {
+        return function;
+    }
+
+    public void setFunction(String function) {
+        this.function = function;
     }
 }

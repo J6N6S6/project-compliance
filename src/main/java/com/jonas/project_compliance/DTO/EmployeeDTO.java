@@ -11,6 +11,7 @@ public record EmployeeDTO(
     String zipCode,
     String phoneNumber,
     BigDecimal salary,
-    LocalDateTime contractDate
+    LocalDateTime contractDate,
+    String function
 ) {
 }
