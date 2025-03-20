@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class EmployeeService {
@@ -20,25 +21,25 @@ public class EmployeeService {
     @Autowired
     private EmployeeMapper employeeMapper;
 
-    public EmployeeDTO createEmployee(EmployeeDTO employeeDTO){
+    public EmployeeDTO createEmployee(EmployeeDTO employeeDTO) {
 
-        if(employeeDTO.name() == null || employeeDTO.name().isBlank()){
+        if(employeeDTO.name() == null || employeeDTO.name().isBlank()) {
             throw new RuntimeException("Employee name cannot be null or empty");
         }
 
-        if(employeeDTO.address() == null || employeeDTO.address().isBlank()){
+        if(employeeDTO.address() == null || employeeDTO.address().isBlank()) {
             throw new RuntimeException("Employee address cannot be null or empty");
         }
 
-        if(employeeDTO.salary() == null || employeeDTO.salary().compareTo(BigDecimal.ZERO) <= 0){
+        if(employeeDTO.salary() == null || employeeDTO.salary().compareTo(BigDecimal.ZERO) <= 0) {
             throw new RuntimeException("Employee salary cannot be zero or minor then 0");
         }
 
-        if(employeeDTO.contractDate() == null){
+        if(employeeDTO.contractDate() == null) {
             throw new RuntimeException("Employee contract date must have a value");
         }
 
-        if(employeeDTO.function() == null || employeeDTO.function().isBlank()){
+        if(employeeDTO.function() == null || employeeDTO.function().isBlank()) {
             throw new RuntimeException("Employee function cannot be null or empty");
         }
 
@@ -47,13 +48,22 @@ public class EmployeeService {
         return employeeMapper.toDTO(savedEmployee);
     }
 
-    public EmployeeDTO getEmployee(Long id){
+    public EmployeeDTO getEmployee(Long id) {
         Employee employee = employeeRepository.findById(id).orElseThrow(() -> new RuntimeException("Id field is required"));
         return employeeMapper.toDTO(employee);
     }
 
-    public List<EmployeeDTO> getEmployeeByName(String name){
-        return null;
+    public List<EmployeeDTO> getEmployeeByName(String name) {
+
+        if(name == null || name.isBlank()) {
+            throw new RuntimeException("Inform a name to search");
+        }
+
+        List<Employee> employees = employeeRepository.findByNameContainingIgnoreCase(name);
+
+        return employees.stream()
+                .map(employeeMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
     public List<EmployeeDTO> getEmployeeByNameAndFunction(String name, String function){
