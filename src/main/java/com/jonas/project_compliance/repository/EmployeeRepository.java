@@ -8,5 +8,6 @@ import java.util.List;
 
 @Repository
 public interface EmployeeRepository extends JpaRepository<Employee, Long> {
-    List<Employee> findByNameContainingIgnoreCase(String name);
+    //List<Employee> findByNameContainingIgnoreCase(String name);
+    List<Employee> findByNameContainingIgnoreCaseAndFunctionContainingIgnoreCase(String name, String function);
 }

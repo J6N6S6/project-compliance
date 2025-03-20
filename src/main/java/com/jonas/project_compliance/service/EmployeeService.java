@@ -4,6 +4,11 @@ import com.jonas.project_compliance.DTO.EmployeeDTO;
 import com.jonas.project_compliance.mapper.EmployeeMapper;
 import com.jonas.project_compliance.model.Employee;
 import com.jonas.project_compliance.repository.EmployeeRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +25,9 @@ public class EmployeeService {
 
     @Autowired
     private EmployeeMapper employeeMapper;
+
+    @Autowired
+    EntityManager entityManager;
 
     public EmployeeDTO createEmployee(EmployeeDTO employeeDTO) {
 
@@ -59,24 +67,66 @@ public class EmployeeService {
             throw new RuntimeException("Inform a name to search");
         }
 
-        List<Employee> employees = employeeRepository.findByNameContainingIgnoreCase(name);
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Employee> query = cb.createQuery(Employee.class);
+        Root<Employee> employeeRoot = query.from(Employee.class);
+
+        query.select(employeeRoot)
+                .where(cb.like(cb.lower(employeeRoot.get("name")), "%" + name.toLowerCase() + "%"));
+
+        List<Employee> employees = entityManager.createQuery(query).getResultList();
 
         return employees.stream()
                 .map(employeeMapper::toDTO)
                 .collect(Collectors.toList());
     }
 
-
     public List<EmployeeDTO> getEmployeeByNameAndFunction(String name, String function){
-        return null;
+        if (name == null || name.isBlank()) {
+            throw new RuntimeException("Name is required");
+        }
+        if (function == null || function.isBlank()) {
+            throw new RuntimeException("Function is required");
+        }
+
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Employee> query = cb.createQuery(Employee.class);
+        Root<Employee> employeeRoot = query.from(Employee.class);
+
+        Predicate namePredicate = cb.like(cb.lower(employeeRoot.get("name")), "%" + name.toLowerCase() + "%");
+        Predicate functionPredicate = cb.like(cb.lower(employeeRoot.get("function")), "%" + function.toLowerCase() + "%");
+
+        query.select(employeeRoot)
+                .where(cb.and(namePredicate, functionPredicate));
+
+        List<Employee> employees = entityManager.createQuery(query).getResultList();
+
+        return employees.stream()
+                .map(employeeMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    public List<EmployeeDTO> getEmployeeBySalary(double salary) {
+        if (salary <= 0){
+            throw new RuntimeException("Salary must be positive");
+        }
+
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Employee> query = cb.createQuery(Employee.class);
+        Root<Employee> employeeRoot = query.from(Employee.class);
+
+        query.select(employeeRoot)
+                .where(cb.greaterThan(employeeRoot.get("salary"), salary));
+
+        List<Employee> employees = entityManager.createQuery(query).getResultList();
+
+        return employees.stream()
+                .map(employeeMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
     //TODO: Create entity before finishing method
     public List<EmployeeDTO> getEmployeeByNameAndDepartment(String name){
-        return null;
-    }
-
-    public List<EmployeeDTO> getEmployeeBySalary(double salary){
         return null;
     }
 
