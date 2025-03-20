@@ -13,5 +13,5 @@ public class DepartmentService {
 
     @Autowired
     EntityManager entityManager;
-    
+
 }
