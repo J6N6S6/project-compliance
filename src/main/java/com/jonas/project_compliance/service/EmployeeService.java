@@ -27,7 +27,7 @@ public class EmployeeService {
     private EmployeeMapper employeeMapper;
 
     @Autowired
-    EntityManager entityManager;
+    private EntityManager entityManager;
 
     public EmployeeDTO createEmployee(EmployeeDTO employeeDTO) {
 
