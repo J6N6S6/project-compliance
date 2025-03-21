@@ -42,7 +42,10 @@ public class DepartmentService {
     }
 
     public DepartmentDTO getDepartment(Long id) {
-        return null;
+        Department department = departmentRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Department not found with id: " + id));
+
+        return departmentMapper.toDTO(department);
     }
 
     public List<DepartmentDTO> getDepartmentByName(String departmentName) {
