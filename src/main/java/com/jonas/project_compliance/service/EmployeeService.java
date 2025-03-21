@@ -80,7 +80,7 @@ public class EmployeeService {
                 .collect(Collectors.toList());
     }
 
-    public List<EmployeeDTO> getEmployeeByNameAndFunction(String name, String function){
+    public List<EmployeeDTO> getEmployeeByNameAndFunction(String name, String function) {
         if (name == null || name.isBlank()) {
             throw new RuntimeException("Name is required");
         }
@@ -124,7 +124,7 @@ public class EmployeeService {
                 .collect(Collectors.toList());
     }
 
-    public List<EmployeeDTO> getEmployeeByNameAndDepartment(String name, String departmentName){
+    public List<EmployeeDTO> getEmployeeByNameAndDepartment(String name, String departmentName) {
         if (name == null || name.isBlank()) {
             throw new RuntimeException("Name is required");
         }
@@ -152,7 +152,7 @@ public class EmployeeService {
                 .collect(Collectors.toList());
     }
 
-    public List<EmployeeDTO> getEmployeeByDepartment(String departmentName){
+    public List<EmployeeDTO> getEmployeeByDepartment(String departmentName) {
         if (departmentName == null || departmentName.isBlank()) {
             throw new RuntimeException("Department name is required");
         }
@@ -176,10 +176,22 @@ public class EmployeeService {
                 .collect(Collectors.toList());
     }
 
-    //TODO: Return in a crescent order
-    public List<EmployeeDTO> getEmployeeRankedBySalary(){
-        return null;
+    public List<EmployeeDTO> getEmployeeRankedBySalary() {
+
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Employee> query = cb.createQuery(Employee.class);
+        Root<Employee> employee = query.from(Employee.class);
+
+        query.select(employee)
+                .orderBy(cb.asc(employee.get("salary")));
+
+        List<Employee> employees = entityManager.createQuery(query).getResultList();
+
+        return employees.stream()
+                .map(employeeMapper::toDTO)
+                .collect(Collectors.toList());
     }
+
 
     public EmployeeDTO updateEmployee(EmployeeDTO employeeDTO, Long id){
         return null;

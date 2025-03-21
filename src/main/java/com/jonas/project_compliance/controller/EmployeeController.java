@@ -67,4 +67,10 @@ public class EmployeeController {
         List<EmployeeDTO> employeeDTOS = employeeService.getEmployeeByDepartment(departmentName);
         return ResponseEntity.ok(employeeDTOS);
     }
+
+    @GetMapping("/ranked-by-salary")
+    public ResponseEntity<List<EmployeeDTO>> getEmployeeRankedBySalary() {
+        List<EmployeeDTO> employeeDTOS = employeeService.getEmployeeRankedBySalary();
+        return ResponseEntity.ok(employeeDTOS);
+    }
 }
