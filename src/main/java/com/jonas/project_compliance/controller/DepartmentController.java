@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/Department")
 public class DepartmentController {
@@ -16,15 +18,26 @@ public class DepartmentController {
 
     @PostMapping
     public ResponseEntity<DepartmentDTO> createDepartment(@RequestBody DepartmentWithoutEmployeesNumberDTO departmentDTO) {
+
         DepartmentDTO department = departmentService.createDepartment(departmentDTO);
         return ResponseEntity.ok(department);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<DepartmentDTO> getDepartment(@PathVariable Long id) {
-        DepartmentDTO response = departmentService.getDepartment(id);
-        return ResponseEntity.ok(response);
+
+        DepartmentDTO departmentDTO = departmentService.getDepartment(id);
+        return ResponseEntity.ok(departmentDTO);
+    }
+
+    @GetMapping("/name/{departmentName}")
+    public ResponseEntity<List<DepartmentDTO>> getDepartmentByName(@PathVariable String departmentName) {
+
+        List<DepartmentDTO> departments = departmentService.getDepartmentByName(departmentName);
+
+        return ResponseEntity.ok(departments);
     }
 
 
 }
+

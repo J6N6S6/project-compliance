@@ -7,11 +7,15 @@ import com.jonas.project_compliance.mapper.DepartmentWithoutEmployeesNumberMappe
 import com.jonas.project_compliance.model.Department;
 import com.jonas.project_compliance.repository.DepartmentRepository;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class DepartmentService {
@@ -42,6 +46,7 @@ public class DepartmentService {
     }
 
     public DepartmentDTO getDepartment(Long id) {
+
         Department department = departmentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Department not found with id: " + id));
 
@@ -49,7 +54,23 @@ public class DepartmentService {
     }
 
     public List<DepartmentDTO> getDepartmentByName(String departmentName) {
-        return null;
+
+        if (departmentName == null || departmentName.isBlank()) {
+            throw new RuntimeException("Department name cannot be null or empty");
+        }
+
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Department> query = cb.createQuery(Department.class);
+        Root<Department> department = query.from(Department.class);
+
+        query.select(department)
+                .where(cb.like(cb.lower(department.get("departmentName")), "%" + departmentName.toLowerCase() + "%"));
+
+        List<Department> departments = entityManager.createQuery(query).getResultList();
+
+        return departments.stream()
+                .map(departmentMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
     public DepartmentDTO updateDepartment(DepartmentDTO departmentDTO, Long id) {
