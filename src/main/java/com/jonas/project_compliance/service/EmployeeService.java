@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -212,7 +213,59 @@ public class EmployeeService {
     }
 
     public EmployeeDTO patchEmployee(Map<String, Object> updates, Long id){
-        return null;
+        Employee employee = employeeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Employee not found with id: " + id));
+
+        updates.forEach((key, value) -> {
+            switch (key) {
+                case "name":
+                    if (value != null && !value.toString().isBlank()) {
+                        employee.setName(value.toString());
+                    }
+                    break;
+                case "address":
+                    if (value != null && !value.toString().isBlank()) {
+                        employee.setAddress(value.toString());
+                    }
+                    break;
+                case "neighborhood":
+                    if (value != null && !value.toString().isBlank()) {
+                        employee.setNeighborhood(value.toString());
+                    }
+                    break;
+                case "zipCode":
+                    if (value != null && !value.toString().isBlank()) {
+                        employee.setZipCode(value.toString());
+                    }
+                    break;
+                case "phoneNumber":
+                    if (value != null && !value.toString().isBlank()) {
+                        employee.setPhoneNumber(value.toString());
+                    }
+                    break;
+                case "salary":
+                    if (value != null) {
+                        employee.setSalary(new BigDecimal(value.toString()));
+                    }
+                    break;
+                case "contractDate":
+                    if (value != null) {
+                        employee.setContractDate(LocalDateTime.parse(value.toString()));
+                    }
+                    break;
+                case "function":
+                    if (value != null && !value.toString().isBlank()) {
+                        employee.setFunction(value.toString());
+                    }
+                    break;
+                default:
+                    throw new RuntimeException("Invalid field: " + key);
+            }
+        });
+
+        Employee updatedEmployee = employeeRepository.save(employee);
+
+        return employeeMapper.toDTO(updatedEmployee);
     }
 
     public Void deleteEmployee(Long id){

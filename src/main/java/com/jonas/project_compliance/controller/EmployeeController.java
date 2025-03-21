@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/Employee")
@@ -85,5 +86,15 @@ public class EmployeeController {
 
         EmployeeDTO updatedEmployeeDTO = employeeService.updateEmployee(employeeDTO, id);
         return ResponseEntity.ok(updatedEmployeeDTO);
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<EmployeeDTO> patchEmployee(
+            @PathVariable Long id,
+            @RequestBody Map<String, Object> updates
+    ) {
+
+        EmployeeDTO employeeDTO = employeeService.patchEmployee(updates, id);
+        return ResponseEntity.ok(employeeDTO);
     }
 }
