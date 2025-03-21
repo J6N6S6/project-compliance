@@ -1,7 +1,9 @@
 package com.jonas.project_compliance.service;
 
 import com.jonas.project_compliance.DTO.DepartmentDTO;
+import com.jonas.project_compliance.DTO.DepartmentWithoutEmployeesNumberDTO;
 import com.jonas.project_compliance.mapper.DepartmentMapper;
+import com.jonas.project_compliance.mapper.DepartmentWithoutEmployeesNumberMapper;
 import com.jonas.project_compliance.model.Department;
 import com.jonas.project_compliance.repository.DepartmentRepository;
 import jakarta.persistence.EntityManager;
@@ -21,15 +23,18 @@ public class DepartmentService {
     private DepartmentMapper departmentMapper;
 
     @Autowired
+    private DepartmentWithoutEmployeesNumberMapper departmentWithoutEmployeesNumberMapper;
+
+    @Autowired
     private EntityManager entityManager;
 
-    public DepartmentDTO createDepartment(DepartmentDTO departmentDTO) {
+    public DepartmentDTO createDepartment(DepartmentWithoutEmployeesNumberDTO departmentDTO) {
 
         if(departmentDTO.departmentName() == null || departmentDTO.departmentName().isBlank()) {
             throw new RuntimeException("Department name cannot be null or empty");
         }
 
-        Department department = departmentMapper.toEntity(departmentDTO);
+        Department department = departmentWithoutEmployeesNumberMapper.toEntity(departmentDTO);
 
         Department savedDepartment = departmentRepository.save(department);
 

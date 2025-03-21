@@ -1,6 +1,7 @@
 package com.jonas.project_compliance.controller;
 
 import com.jonas.project_compliance.DTO.DepartmentDTO;
+import com.jonas.project_compliance.DTO.DepartmentWithoutEmployeesNumberDTO;
 import com.jonas.project_compliance.service.DepartmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +18,7 @@ public class DepartmentController {
     private DepartmentService departmentService;
 
     @PostMapping
-    public ResponseEntity<DepartmentDTO> createDepartment(@RequestBody DepartmentDTO departmentDTO) {
+    public ResponseEntity<DepartmentDTO> createDepartment(@RequestBody DepartmentWithoutEmployeesNumberDTO departmentDTO) {
         DepartmentDTO department = departmentService.createDepartment(departmentDTO);
         return ResponseEntity.ok(department);
     }

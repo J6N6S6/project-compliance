@@ -19,6 +19,11 @@ public class Department {
     public Department() {
     }
 
+    public Department(Long UUID, String departmentName) {
+        this.UUID = UUID;
+        this.departmentName = departmentName;
+    }
+
     public Department(Long UUID, String departmentName, int employeesNumber) {
         this.UUID = UUID;
         this.departmentName = departmentName;
