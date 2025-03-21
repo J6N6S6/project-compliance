@@ -22,4 +22,6 @@ public class DepartmentController {
         DepartmentDTO department = departmentService.createDepartment(departmentDTO);
         return ResponseEntity.ok(department);
     }
+
+
 }
