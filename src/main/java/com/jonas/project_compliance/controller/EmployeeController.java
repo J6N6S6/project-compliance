@@ -105,4 +105,22 @@ public class EmployeeController {
         return ResponseEntity.noContent().build();
     }
 
-}
+    @PostMapping("/{employeeId}/associate/{departmentId}")
+    public ResponseEntity<EmployeeDTO> associateEmployeeWithDepartment(
+            @PathVariable Long employeeId,
+            @PathVariable Long departmentId
+    ) {
+
+        EmployeeDTO employeeDTO = employeeService.associateEmployeeWithDepartment(employeeId, departmentId);
+        return ResponseEntity.ok(employeeDTO);
+    }
+
+    @PostMapping("/{employeeId}/dissociate/{departmentId}")
+    public ResponseEntity<EmployeeDTO> dissociateEmployeeFromDepartment(
+            @PathVariable Long employeeId,
+            @PathVariable Long departmentId
+    ) {
+
+        EmployeeDTO employeeDTO = employeeService.dissociateEmployeeFromDepartment(employeeId, departmentId);
+        return ResponseEntity.ok(employeeDTO);
+    }}

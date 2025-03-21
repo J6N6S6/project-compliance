@@ -5,6 +5,7 @@ import com.jonas.project_compliance.mapper.EmployeeMapper;
 import com.jonas.project_compliance.model.Employee;
 import com.jonas.project_compliance.model.EmployeeDepartment;
 import com.jonas.project_compliance.model.Department;
+import com.jonas.project_compliance.repository.DepartmentRepository;
 import com.jonas.project_compliance.repository.EmployeeDepartmentRepository;
 import com.jonas.project_compliance.repository.EmployeeRepository;
 import jakarta.persistence.EntityManager;
@@ -24,6 +25,9 @@ public class EmployeeService {
 
     @Autowired
     private EmployeeRepository employeeRepository;
+
+    @Autowired
+    private DepartmentRepository departmentRepository;
 
     @Autowired
     private EmployeeDepartmentRepository employeeDepartmentRepository;
@@ -62,6 +66,7 @@ public class EmployeeService {
     }
 
     public EmployeeDTO getEmployee(Long id) {
+
         Employee employee = employeeRepository.findById(id).orElseThrow(() -> new RuntimeException("Id field is required"));
         return employeeMapper.toDTO(employee);
     }
@@ -87,6 +92,7 @@ public class EmployeeService {
     }
 
     public List<EmployeeDTO> getEmployeeByNameAndFunction(String name, String function) {
+
         if (name == null || name.isBlank()) {
             throw new RuntimeException("Name is required");
         }
@@ -112,6 +118,7 @@ public class EmployeeService {
     }
 
     public List<EmployeeDTO> getEmployeeBySalary(double salary) {
+
         if (salary <= 0){
             throw new RuntimeException("Salary must be positive");
         }
@@ -131,6 +138,7 @@ public class EmployeeService {
     }
 
     public List<EmployeeDTO> getEmployeeByNameAndDepartment(String name, String departmentName) {
+
         if (name == null || name.isBlank()) {
             throw new RuntimeException("Name is required");
         }
@@ -159,6 +167,7 @@ public class EmployeeService {
     }
 
     public List<EmployeeDTO> getEmployeeByDepartment(String departmentName) {
+
         if (departmentName == null || departmentName.isBlank()) {
             throw new RuntimeException("Department name is required");
         }
@@ -200,6 +209,7 @@ public class EmployeeService {
 
 
     public EmployeeDTO updateEmployee(EmployeeDTO employeeDTO, Long id){
+
         Employee employee = employeeRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Employee not found with id: " + id));
 
@@ -218,6 +228,7 @@ public class EmployeeService {
     }
 
     public EmployeeDTO patchEmployee(Map<String, Object> updates, Long id){
+
         Employee employee = employeeRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Employee not found with id: " + id));
 
@@ -313,6 +324,74 @@ public class EmployeeService {
 
     }
 
-    //TODO: Create methods to associate and dissociate employees and departments
+    public EmployeeDTO associateEmployeeWithDepartment(Long employeeId, Long departmentId) {
+
+        Employee employee = employeeRepository.findById(employeeId)
+                .orElseThrow(() -> new RuntimeException("Employee not found with id: " + employeeId));
+        Department department = departmentRepository.findById(departmentId)
+                .orElseThrow(() -> new RuntimeException("Department not found with id: " + departmentId));
+
+        EmployeeDepartment employeeDepartment = new EmployeeDepartment();
+        employeeDepartment.setEmployee(employee);
+        employeeDepartment.setDepartment(department);
+
+        employeeDepartmentRepository.save(employeeDepartment);
+
+        department.setEmployeesNumber(department.getEmployeesNumber() + 1);
+        departmentRepository.save(department);
+
+        return employeeMapper.toDTO(employee);
+    }
+
+    @Transactional
+    public EmployeeDTO dissociateEmployeeFromDepartment(Long employeeId, Long departmentId) {
+
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Employee> employeeQuery = cb.createQuery(Employee.class);
+        Root<Employee> employeeRoot = employeeQuery.from(Employee.class);
+
+        employeeQuery.select(employeeRoot)
+                .where(cb.equal(employeeRoot.get("UUID"), employeeId));
+
+        Employee employee = entityManager.createQuery(employeeQuery)
+                .getResultStream()
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Employee not found with id: " + employeeId));
+
+        CriteriaQuery<Department> departmentQuery = cb.createQuery(Department.class);
+        Root<Department> departmentRoot = departmentQuery.from(Department.class);
+
+        departmentQuery.select(departmentRoot)
+                .where(cb.equal(departmentRoot.get("UUID"), departmentId));
+
+        Department department = entityManager.createQuery(departmentQuery)
+                .getResultStream()
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Department not found with id: " + departmentId));
+
+        CriteriaQuery<EmployeeDepartment> employeeDepartmentQuery = cb.createQuery(EmployeeDepartment.class);
+        Root<EmployeeDepartment> employeeDepartmentRoot = employeeDepartmentQuery.from(EmployeeDepartment.class);
+
+        employeeDepartmentQuery.select(employeeDepartmentRoot)
+                .where(cb.and(
+                        cb.equal(employeeDepartmentRoot.get("employee"), employee),
+                        cb.equal(employeeDepartmentRoot.get("department"), department)
+                ));
+
+        List<EmployeeDepartment> employeeDepartments = entityManager.createQuery(employeeDepartmentQuery)
+                .getResultList();
+
+        for (EmployeeDepartment employeeDepartment : employeeDepartments) {
+            entityManager.remove(employeeDepartment);
+        }
+
+        int employeesNumber = department.getEmployeesNumber();
+        if (employeesNumber > 0) {
+            department.setEmployeesNumber(employeesNumber - employeeDepartments.size());
+            entityManager.merge(department);
+        }
+
+        return employeeMapper.toDTO(employee);
+    }
 
 }
