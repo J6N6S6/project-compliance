@@ -2,6 +2,7 @@ package com.jonas.project_compliance.service;
 
 import com.jonas.project_compliance.DTO.DepartmentDTO;
 import com.jonas.project_compliance.mapper.DepartmentMapper;
+import com.jonas.project_compliance.model.Department;
 import com.jonas.project_compliance.repository.DepartmentRepository;
 import jakarta.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,16 @@ public class DepartmentService {
     private EntityManager entityManager;
 
     public DepartmentDTO createDepartment(DepartmentDTO departmentDTO) {
-        return null;
+
+        if(departmentDTO.departmentName() == null || departmentDTO.departmentName().isBlank()) {
+            throw new RuntimeException("Department name cannot be null or empty");
+        }
+
+        Department department = departmentMapper.toEntity(departmentDTO);
+
+        Department savedDepartment = departmentRepository.save(department);
+
+        return departmentMapper.toDTO(savedDepartment);
     }
 
     public DepartmentDTO getDepartment(Long id) {

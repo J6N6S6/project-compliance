@@ -1,0 +1,2 @@
+ALTER TABLE tb_department
+ADD CONSTRAINT UQ_tb_department_department_name UNIQUE (department_name)

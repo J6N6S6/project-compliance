@@ -10,7 +10,7 @@ public class Department {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long UUID;
 
-    @Column(name = "department_name")
+    @Column(name = "department_name", unique = true)
     private String departmentName;
 
     @Column(name = "employees_number")
