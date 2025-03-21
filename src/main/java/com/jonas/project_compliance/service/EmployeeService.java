@@ -5,9 +5,11 @@ import com.jonas.project_compliance.mapper.EmployeeMapper;
 import com.jonas.project_compliance.model.Employee;
 import com.jonas.project_compliance.model.EmployeeDepartment;
 import com.jonas.project_compliance.model.Department;
+import com.jonas.project_compliance.repository.EmployeeDepartmentRepository;
 import com.jonas.project_compliance.repository.EmployeeRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.*;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +24,9 @@ public class EmployeeService {
 
     @Autowired
     private EmployeeRepository employeeRepository;
+
+    @Autowired
+    private EmployeeDepartmentRepository employeeDepartmentRepository;
 
     @Autowired
     private EmployeeMapper employeeMapper;
@@ -268,8 +273,44 @@ public class EmployeeService {
         return employeeMapper.toDTO(updatedEmployee);
     }
 
-    public Void deleteEmployee(Long id){
-        return null;
+    @Transactional
+    public void deleteEmployee(Long id){
+
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Employee> employeeQuery = cb.createQuery(Employee.class);
+        Root<Employee> employeeRoot = employeeQuery.from(Employee.class);
+
+        employeeQuery.select(employeeRoot)
+                .where(cb.equal(employeeRoot.get("UUID"), id));
+
+        Employee employee = entityManager.createQuery(employeeQuery)
+                .getResultStream()
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Employee not found with id: " + id));
+
+        CriteriaQuery<EmployeeDepartment> employeeDepartmentQuery = cb.createQuery(EmployeeDepartment.class);
+        Root<EmployeeDepartment> employeeDepartmentRoot = employeeDepartmentQuery.from(EmployeeDepartment.class);
+
+        employeeDepartmentQuery.select(employeeDepartmentRoot)
+                .where(cb.equal(employeeDepartmentRoot.get("employee"), employee));
+
+        List<EmployeeDepartment> employeeDepartments = entityManager.createQuery(employeeDepartmentQuery)
+                .getResultList();
+
+        if (!employeeDepartments.isEmpty()) {
+            for (EmployeeDepartment employeeDepartment : employeeDepartments) {
+                Department department = employeeDepartment.getDepartment();
+                int employeesNumber = department.getEmployeesNumber();
+
+                if (employeesNumber > 0) {
+                    department.setEmployeesNumber(employeesNumber - 1);
+                    entityManager.merge(department);
+                }
+            }
+        }
+
+        entityManager.remove(employee);
+
     }
 
     //TODO: Create methods to associate and dissociate employees and departments

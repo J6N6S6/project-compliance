@@ -97,4 +97,12 @@ public class EmployeeController {
         EmployeeDTO employeeDTO = employeeService.patchEmployee(updates, id);
         return ResponseEntity.ok(employeeDTO);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteEmployee(@PathVariable Long id) {
+
+        employeeService.deleteEmployee(id);
+        return ResponseEntity.noContent().build();
+    }
+
 }
