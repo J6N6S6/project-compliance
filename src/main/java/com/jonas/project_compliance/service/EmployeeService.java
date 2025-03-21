@@ -8,6 +8,7 @@ import com.jonas.project_compliance.model.Department;
 import com.jonas.project_compliance.repository.DepartmentRepository;
 import com.jonas.project_compliance.repository.EmployeeDepartmentRepository;
 import com.jonas.project_compliance.repository.EmployeeRepository;
+import com.jonas.project_compliance.service.validation.EmployeeValidationContext;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.*;
 import jakarta.transaction.Transactional;
@@ -38,26 +39,14 @@ public class EmployeeService {
     @Autowired
     private EntityManager entityManager;
 
+    @Autowired
+    EmployeeValidationContext employeeValidationContext;
+
     public EmployeeDTO createEmployee(EmployeeDTO employeeDTO) {
 
-        if(employeeDTO.name() == null || employeeDTO.name().isBlank()) {
-            throw new RuntimeException("Employee name cannot be null or empty");
-        }
+        if(!employeeValidationContext.executeValidation(employeeDTO)) {
 
-        if(employeeDTO.address() == null || employeeDTO.address().isBlank()) {
-            throw new RuntimeException("Employee address cannot be null or empty");
-        }
-
-        if(employeeDTO.salary() == null || employeeDTO.salary().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new RuntimeException("Employee salary cannot be zero or minor then 0");
-        }
-
-        if(employeeDTO.contractDate() == null) {
-            throw new RuntimeException("Employee contract date must have a value");
-        }
-
-        if(employeeDTO.function() == null || employeeDTO.function().isBlank()) {
-            throw new RuntimeException("Employee function cannot be null or empty");
+            throw new RuntimeException("Employee data must be complete!");
         }
 
         Employee employee = employeeMapper.toEntity(employeeDTO);
