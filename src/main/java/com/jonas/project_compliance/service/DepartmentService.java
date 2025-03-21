@@ -2,6 +2,7 @@ package com.jonas.project_compliance.service;
 
 import com.jonas.project_compliance.DTO.DepartmentDTO;
 import com.jonas.project_compliance.DTO.DepartmentWithoutEmployeesNumberDTO;
+import com.jonas.project_compliance.functional.DepartmentOperation;
 import com.jonas.project_compliance.mapper.DepartmentMapper;
 import com.jonas.project_compliance.mapper.DepartmentWithoutEmployeesNumberMapper;
 import com.jonas.project_compliance.model.Department;
@@ -40,11 +41,9 @@ public class DepartmentService {
 
     public DepartmentDTO createDepartment(DepartmentWithoutEmployeesNumberDTO departmentDTO) {
 
-        if(departmentDTO.departmentName() == null || departmentDTO.departmentName().isBlank()) {
-            throw new RuntimeException("Department name cannot be null or empty");
-        }
-
         Department department = departmentWithoutEmployeesNumberMapper.toEntity(departmentDTO);
+
+        department.performOperation(validateDepartmentName);
 
         Department savedDepartment = departmentRepository.save(department);
 
@@ -170,4 +169,11 @@ public class DepartmentService {
 
         return null;
     }
+
+    private final DepartmentOperation validateDepartmentName = departmentName -> {
+        if (departmentName == null || departmentName.isBlank()) {
+            throw new RuntimeException("Department name cannot be null or empty");
+        }
+    };
+
 }

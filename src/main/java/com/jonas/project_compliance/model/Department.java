@@ -1,5 +1,6 @@
 package com.jonas.project_compliance.model;
 
+import com.jonas.project_compliance.functional.DepartmentOperation;
 import jakarta.persistence.*;
 
 @Entity
@@ -53,4 +54,10 @@ public class Department {
     public void setEmployeesNumber(int employeesNumber) {
         this.employeesNumber = employeesNumber;
     }
+
+    public void performOperation(DepartmentOperation operation) {
+        operation.execute(this.departmentName
+        );
+    }
+
 }
