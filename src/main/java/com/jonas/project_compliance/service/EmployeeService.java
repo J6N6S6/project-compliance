@@ -194,7 +194,21 @@ public class EmployeeService {
 
 
     public EmployeeDTO updateEmployee(EmployeeDTO employeeDTO, Long id){
-        return null;
+        Employee employee = employeeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Employee not found with id: " + id));
+
+        employee.setName(employeeDTO.name());
+        employee.setAddress(employeeDTO.address());
+        employee.setNeighborhood(employeeDTO.neighborhood());
+        employee.setZipCode(employeeDTO.zipCode());
+        employee.setPhoneNumber(employeeDTO.phoneNumber());
+        employee.setSalary(employeeDTO.salary());
+        employee.setContractDate(employeeDTO.contractDate());
+        employee.setFunction(employeeDTO.function());
+
+        Employee updatedEmployee = employeeRepository.save(employee);
+
+        return employeeMapper.toDTO(updatedEmployee);
     }
 
     public EmployeeDTO patchEmployee(Map<String, Object> updates, Long id){

@@ -37,7 +37,10 @@ public class EmployeeController {
     }
 
     @GetMapping("/name-function")
-    public ResponseEntity<List<EmployeeDTO>> getEmployeeByNameAndFunction(@RequestParam String name, @RequestParam String function){
+    public ResponseEntity<List<EmployeeDTO>> getEmployeeByNameAndFunction(
+            @RequestParam String name,
+            @RequestParam String function
+    ) {
 
         List<EmployeeDTO> employees = employeeService.getEmployeeByNameAndFunction(name, function);
         return ResponseEntity.ok(employees);
@@ -53,8 +56,8 @@ public class EmployeeController {
     @GetMapping("/name-department")
     public ResponseEntity<List<EmployeeDTO>> getEmployeeByNameAndDepartment(
             @RequestParam String name,
-            @RequestParam String departmentName)
-    {
+            @RequestParam String departmentName
+    ) {
 
         List<EmployeeDTO> employeeDTOS = employeeService.getEmployeeByNameAndDepartment(name, departmentName);
         return ResponseEntity.ok(employeeDTOS);
@@ -72,5 +75,15 @@ public class EmployeeController {
     public ResponseEntity<List<EmployeeDTO>> getEmployeeRankedBySalary() {
         List<EmployeeDTO> employeeDTOS = employeeService.getEmployeeRankedBySalary();
         return ResponseEntity.ok(employeeDTOS);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<EmployeeDTO> updateEmployee(
+            @PathVariable Long id,
+            @RequestBody EmployeeDTO employeeDTO
+    ) {
+
+        EmployeeDTO updatedEmployeeDTO = employeeService.updateEmployee(employeeDTO, id);
+        return ResponseEntity.ok(updatedEmployeeDTO);
     }
 }
