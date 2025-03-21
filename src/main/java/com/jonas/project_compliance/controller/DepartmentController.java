@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/Department")
@@ -43,9 +44,21 @@ public class DepartmentController {
             @PathVariable Long id,
             @RequestBody DepartmentDTO departmentDTO
     ) {
+
         DepartmentDTO updatedDepartmentDTO = departmentService.updateDepartment(departmentDTO, id);
 
         return ResponseEntity.ok(updatedDepartmentDTO);
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<DepartmentDTO> patchDepartment(
+            @PathVariable Long id,
+            @RequestBody Map<String, Object> updates
+    ) {
+
+        DepartmentDTO patchedDepartmentDTO = departmentService.patchDepartment(updates, id);
+
+        return ResponseEntity.ok(patchedDepartmentDTO);
     }
 
 }

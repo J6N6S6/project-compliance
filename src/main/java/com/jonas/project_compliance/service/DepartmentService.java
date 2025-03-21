@@ -94,7 +94,40 @@ public class DepartmentService {
     }
 
     public DepartmentDTO patchDepartment(Map<String, Object> updates, Long id) {
-        return null;
+
+        Department department = departmentRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Department not found with id: " + id));
+
+        updates.forEach((key, value) -> {
+            switch (key) {
+                case "departmentName":
+                    if (value != null && !value.toString().isBlank()) {
+                        department.setDepartmentName(value.toString());
+                    }
+
+                    break;
+
+                case "employeesNumber":
+                    if (value != null) {
+                        int employeesNumber = Integer.parseInt(value.toString());
+                        if (employeesNumber >= 0) {
+                            department.setEmployeesNumber(employeesNumber);
+                        } else {
+                            throw new RuntimeException("Employees number cannot be negative");
+                        }
+                    }
+                    else {
+                        throw new RuntimeException("Employees number must be informed");
+                    }
+                    break;
+                default:
+                    throw new RuntimeException("Informed field was not found: " + key);
+            }
+        });
+
+        Department updatedDepartment = departmentRepository.save(department);
+
+        return departmentMapper.toDTO(updatedDepartment);
     }
 
     public Void deleteDepartment(Long id){
