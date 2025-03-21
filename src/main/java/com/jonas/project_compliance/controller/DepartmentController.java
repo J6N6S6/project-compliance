@@ -38,6 +38,15 @@ public class DepartmentController {
         return ResponseEntity.ok(departments);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<DepartmentDTO> updateDepartment(
+            @PathVariable Long id,
+            @RequestBody DepartmentDTO departmentDTO
+    ) {
+        DepartmentDTO updatedDepartmentDTO = departmentService.updateDepartment(departmentDTO, id);
+
+        return ResponseEntity.ok(updatedDepartmentDTO);
+    }
 
 }
 

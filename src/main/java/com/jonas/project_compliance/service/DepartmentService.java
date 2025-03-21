@@ -74,7 +74,23 @@ public class DepartmentService {
     }
 
     public DepartmentDTO updateDepartment(DepartmentDTO departmentDTO, Long id) {
-        return null;
+
+        if (departmentDTO.departmentName() == null || departmentDTO.departmentName().isBlank()) {
+            throw new RuntimeException("Department name cannot be null or empty");
+        }
+        if (departmentDTO.employeesNumber() < 0) {
+            throw new RuntimeException("Employees number cannot be negative");
+        }
+
+        Department department = departmentRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Department not found with id: " + id));
+
+        department.setDepartmentName(departmentDTO.departmentName());
+        department.setEmployeesNumber(departmentDTO.employeesNumber());
+
+        Department updatedDepartment = departmentRepository.save(department);
+
+        return departmentMapper.toDTO(updatedDepartment);
     }
 
     public DepartmentDTO patchDepartment(Map<String, Object> updates, Long id) {
