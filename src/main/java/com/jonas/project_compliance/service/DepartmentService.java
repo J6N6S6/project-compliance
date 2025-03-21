@@ -170,7 +170,7 @@ public class DepartmentService {
         return null;
     }
 
-    private final DepartmentOperation validateDepartmentName = departmentName -> {
+    private final DepartmentOperation validateDepartmentName = departmentName -> { //If I need to validate entity name I can reuse this part
         if (departmentName == null || departmentName.isBlank()) {
             throw new RuntimeException("Department name cannot be null or empty");
         }
