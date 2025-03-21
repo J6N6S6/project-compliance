@@ -152,9 +152,28 @@ public class EmployeeService {
                 .collect(Collectors.toList());
     }
 
-    //TODO: Update method after creating Department entity
-    public List<EmployeeDTO> getEmployeeByDepartment(){
-        return null;
+    public List<EmployeeDTO> getEmployeeByDepartment(String departmentName){
+        if (departmentName == null || departmentName.isBlank()) {
+            throw new RuntimeException("Department name is required");
+        }
+
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Employee> query = cb.createQuery(Employee.class);
+        Root<EmployeeDepartment> employeeDepartment = query.from(EmployeeDepartment.class);
+
+        Join<EmployeeDepartment, Employee> employee = employeeDepartment.join("employee");
+        Join<EmployeeDepartment, Department> department = employeeDepartment.join("department");
+
+        Predicate departmentPredicate = cb.like(cb.lower(department.get("departmentName")), "%" + departmentName.toLowerCase() + "%");
+
+        query.select(employee)
+                .where(departmentPredicate);
+
+        List<Employee> employees = entityManager.createQuery(query).getResultList();
+
+        return employees.stream()
+                .map(employeeMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
     //TODO: Return in a crescent order

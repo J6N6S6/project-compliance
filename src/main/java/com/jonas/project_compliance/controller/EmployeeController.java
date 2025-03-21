@@ -59,4 +59,12 @@ public class EmployeeController {
         List<EmployeeDTO> employeeDTOS = employeeService.getEmployeeByNameAndDepartment(name, departmentName);
         return ResponseEntity.ok(employeeDTOS);
     }
+
+    @GetMapping("/department")
+    public ResponseEntity<List<EmployeeDTO>> getEmployeeByDepartment(
+            @RequestParam String departmentName
+    ) {
+        List<EmployeeDTO> employeeDTOS = employeeService.getEmployeeByDepartment(departmentName);
+        return ResponseEntity.ok(employeeDTOS);
+    }
 }
