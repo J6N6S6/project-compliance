@@ -104,7 +104,9 @@ public class DepartmentService {
                     if (value != null && !value.toString().isBlank()) {
                         department.setDepartmentName(value.toString());
                     }
-
+                    else {
+                        throw new RuntimeException("Department name must not be null or blank");
+                    }
                     break;
 
                 case "employeesNumber":
