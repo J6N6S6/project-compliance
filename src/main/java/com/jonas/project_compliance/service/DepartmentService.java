@@ -5,11 +5,14 @@ import com.jonas.project_compliance.DTO.DepartmentWithoutEmployeesNumberDTO;
 import com.jonas.project_compliance.mapper.DepartmentMapper;
 import com.jonas.project_compliance.mapper.DepartmentWithoutEmployeesNumberMapper;
 import com.jonas.project_compliance.model.Department;
+import com.jonas.project_compliance.model.EmployeeDepartment;
 import com.jonas.project_compliance.repository.DepartmentRepository;
+import com.jonas.project_compliance.repository.EmployeeDepartmentRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +25,9 @@ public class DepartmentService {
 
     @Autowired
     private DepartmentRepository departmentRepository;
+
+    @Autowired
+    private EmployeeDepartmentRepository employeeDepartmentRepository;
 
     @Autowired
     private DepartmentMapper departmentMapper;
@@ -132,7 +138,36 @@ public class DepartmentService {
         return departmentMapper.toDTO(updatedDepartment);
     }
 
-    public Void deleteDepartment(Long id){
+    @Transactional
+    public Void deleteDepartment(Long id) {
+
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Department> departmentQuery = cb.createQuery(Department.class);
+        Root<Department> departmentRoot = departmentQuery.from(Department.class);
+
+        departmentQuery.select(departmentRoot)
+                .where(cb.equal(departmentRoot.get("UUID"), id));
+
+        Department department = entityManager.createQuery(departmentQuery)
+                .getResultStream()
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Department not found with id: " + id));
+
+        CriteriaQuery<EmployeeDepartment> employeeDepartmentQuery = cb.createQuery(EmployeeDepartment.class);
+        Root<EmployeeDepartment> employeeDepartmentRoot = employeeDepartmentQuery.from(EmployeeDepartment.class);
+
+        employeeDepartmentQuery.select(employeeDepartmentRoot)
+                .where(cb.equal(employeeDepartmentRoot.get("department"), department));
+
+        List<EmployeeDepartment> employeeDepartments = entityManager.createQuery(employeeDepartmentQuery)
+                .getResultList();
+
+        if (!employeeDepartments.isEmpty()) {
+            throw new RuntimeException("Cannot delete department with associated employees");
+        }
+
+        entityManager.remove(department);
+
         return null;
     }
 }
