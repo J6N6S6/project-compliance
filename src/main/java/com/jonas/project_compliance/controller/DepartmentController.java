@@ -1,7 +1,6 @@
 package com.jonas.project_compliance.controller;
 
 import com.jonas.project_compliance.DTO.DepartmentDTO;
-import com.jonas.project_compliance.DTO.EmployeeDTO;
 import com.jonas.project_compliance.service.DepartmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
