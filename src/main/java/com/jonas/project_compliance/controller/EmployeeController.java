@@ -17,31 +17,46 @@ public class EmployeeController {
 
     @PostMapping
     public ResponseEntity<EmployeeDTO> createEmployee(@RequestBody EmployeeDTO employeeDTO) {
+
         EmployeeDTO employee = employeeService.createEmployee(employeeDTO);
         return ResponseEntity.ok(employee);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<EmployeeDTO> getEmployee(@PathVariable Long id) {
+
         EmployeeDTO employee = employeeService.getEmployee(id);
         return ResponseEntity.ok(employee);
     }
 
     @GetMapping("/name/{name}")
     public ResponseEntity<List<EmployeeDTO>> getEmployeeByName(@PathVariable String name) {
+
         List<EmployeeDTO> employees = employeeService.getEmployeeByName(name);
         return ResponseEntity.ok(employees);
     }
 
     @GetMapping("/name-function")
     public ResponseEntity<List<EmployeeDTO>> getEmployeeByNameAndFunction(@RequestParam String name, @RequestParam String function){
+
         List<EmployeeDTO> employees = employeeService.getEmployeeByNameAndFunction(name, function);
         return ResponseEntity.ok(employees);
     }
 
     @GetMapping("/salary/{salary}")
     public ResponseEntity<List<EmployeeDTO>> getEmployeeBySalary(@PathVariable double salary) {
+
         List<EmployeeDTO> employeeDTOS = employeeService.getEmployeeBySalary(salary);
+        return ResponseEntity.ok(employeeDTOS);
+    }
+
+    @GetMapping("/name-department")
+    public ResponseEntity<List<EmployeeDTO>> getEmployeeByNameAndDepartment(
+            @RequestParam String name,
+            @RequestParam String departmentName)
+    {
+
+        List<EmployeeDTO> employeeDTOS = employeeService.getEmployeeByNameAndDepartment(name, departmentName);
         return ResponseEntity.ok(employeeDTOS);
     }
 }

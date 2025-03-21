@@ -3,12 +3,11 @@ package com.jonas.project_compliance.service;
 import com.jonas.project_compliance.DTO.EmployeeDTO;
 import com.jonas.project_compliance.mapper.EmployeeMapper;
 import com.jonas.project_compliance.model.Employee;
+import com.jonas.project_compliance.model.EmployeeDepartment;
+import com.jonas.project_compliance.model.Department;
 import com.jonas.project_compliance.repository.EmployeeRepository;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -125,9 +124,32 @@ public class EmployeeService {
                 .collect(Collectors.toList());
     }
 
-    //TODO: Create entity before finishing method
-    public List<EmployeeDTO> getEmployeeByNameAndDepartment(String name){
-        return null;
+    public List<EmployeeDTO> getEmployeeByNameAndDepartment(String name, String departmentName){
+        if (name == null || name.isBlank()) {
+            throw new RuntimeException("Name is required");
+        }
+        if (departmentName == null || departmentName.isBlank()) {
+            throw new RuntimeException("Department name is required");
+        }
+
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Employee> query = cb.createQuery(Employee.class);
+        Root<EmployeeDepartment> employeeDepartment = query.from(EmployeeDepartment.class);
+
+        Join<EmployeeDepartment, Employee> employee = employeeDepartment.join("employee");
+        Join<EmployeeDepartment, Department> department = employeeDepartment.join("department");
+
+        Predicate namePredicate = cb.like(cb.lower(employee.get("name")), "%" + name.toLowerCase() + "%");
+        Predicate departmentPredicate = cb.like(cb.lower(department.get("departmentName")), "%" + departmentName.toLowerCase() + "%");
+
+        query.select(employee)
+                .where(cb.and(namePredicate, departmentPredicate));
+
+        List<Employee> employees = entityManager.createQuery(query).getResultList();
+
+        return employees.stream()
+                .map(employeeMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
     //TODO: Update method after creating Department entity
